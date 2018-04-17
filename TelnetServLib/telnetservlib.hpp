@@ -45,6 +45,8 @@ either expressed or implied, of the FreeBSD Project.
 #include <vector>
 #include <functional>
 #include <list>
+#include <algorithm>
+
 
 class TelnetServer;
 class TelnetSession;
@@ -136,7 +138,7 @@ friend TelnetServer;
 };
 
 typedef std::shared_ptr<TelnetSession>   SP_TelnetSession;
-typedef std::vector < SP_TelnetSession > VEC_SP_TelnetSession;
+typedef std::list < SP_TelnetSession > LIST_SP_TelnetSession;
 
 typedef std::function< void(SP_TelnetSession) >              FPTR_ConnectedCallback;
 typedef std::function< void(SP_TelnetSession, std::string) > FPTR_NewLineCallback;
@@ -157,7 +159,7 @@ public:
     void newLineCallback(FPTR_NewLineCallback f) { m_newlineCallback = f; }
     FPTR_NewLineCallback newLineCallBack() const { return m_newlineCallback; }
 
-    VEC_SP_TelnetSession sessions() const { return m_sessions; }
+    LIST_SP_TelnetSession sessions() const { return m_sessions; }
 
     bool interactivePrompt() const { return m_promptString.length() > 0; }
     void promptString(std::string prompt) { m_promptString = prompt; }
@@ -169,7 +171,7 @@ private:
 private:
     u_long m_listenPort;
     SOCKET m_listenSocket;
-    VEC_SP_TelnetSession m_sessions;
+    LIST_SP_TelnetSession m_sessions;
     bool   m_initialised;
     std::string m_promptString;                     // A string that denotes the current prompt
 

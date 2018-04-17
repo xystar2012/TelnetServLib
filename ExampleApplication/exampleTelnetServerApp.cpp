@@ -10,6 +10,9 @@
 #include <stdio.h>
 #include <iostream>
 #include <tchar.h>
+#include <ctime>
+#include <sys/timeb.h>
+#include <string>
 
 void myConnected(SP_TelnetSession session)
 {
@@ -20,7 +23,30 @@ void myConnected(SP_TelnetSession session)
 void myNewLine(SP_TelnetSession session, std::string line)
 {
     std::cout << "myNewLine got called with line: " << line << "\n";
-    session->sendLine("Copy that.");
+	
+	if (line.compare("bye") == 0 || line.compare("quit") == 0)
+	{
+		session->sendLine("quit bye server ...");
+		session->closeClient();
+	}
+	else
+	{
+		time_t time(NULL);
+		timeb tb;
+		ftime(&tb);
+		tb.millitm;
+		char szTm[64] = { 0 };
+		struct tm buf;
+		strftime(szTm, 64, "[%Y-%m-%d %H:%M:%S.", localtime(&tb.time));
+		//session->sendLine("Copy that.");
+		std::string data;
+		data.assign(szTm);
+		data.append(std::to_string(tb.millitm));
+		data.append("]");
+		data.append(line);
+
+		session->sendLine(data);
+	}
 }
 
 int _tmain(int argc, _TCHAR* argv[])
@@ -31,7 +57,7 @@ int _tmain(int argc, _TCHAR* argv[])
     // Create a terminal server which
     auto ts = std::make_shared < TelnetServer >();
     
-    ts->initialise(27015);
+    ts->initialise(27015,"prompt: ");
     ts->connectedCallback(myConnected);
     ts->newLineCallback(myNewLine);
 

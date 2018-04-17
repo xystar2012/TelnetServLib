@@ -63,6 +63,7 @@ void TelnetSession::closeClient()
 
     // cleanup
     closesocket(m_socket);
+	m_socket = SOCKET_ERROR;
 }
 
 void TelnetSession::echoBack(char * buffer, u_long length)
@@ -448,6 +449,7 @@ void TelnetServer::update()
         acceptConnection();
     }
 
+	m_sessions.remove_if([](SP_TelnetSession it){return it->m_socket == SOCKET_ERROR; });
     // Update all the telnet Sessions that are currently in flight.
     for (SP_TelnetSession ts : m_sessions)
     {
